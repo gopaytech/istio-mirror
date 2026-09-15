@@ -1,0 +1,50 @@
+name: mirror
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - tags.txt
+      - mirror.sh
+      - .github/workflows/mirror.yml
+  workflow_dispatch:
+    inputs:
+      versions:
+        description: Space-separated Istio versions to mirror, e.g. "1.31.0 1.30.2" (defaults to tags.txt)
+        required: false
+        default: ""
+
+concurrency:
+  group: mirror
+  cancel-in-progress: false
+
+env:
+  DESTINATION_HUB: ghcr.io/${{ github.repository }}
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # Optional: set these repository secrets to pull from Docker Hub as an
+      # authenticated user (higher rate limit than anonymous pulls).
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Installs crane and logs it in to ghcr.io with GITHUB_TOKEN
+      # https://github.com/imjasonh/setup-crane
+      - name: Set up crane
+        uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # v0.7
+      - name: Log into Docker Hub
+        if: env.DOCKERHUB_USERNAME != ''
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "$DOCKERHUB_TOKEN" | crane auth login index.docker.io --username "$DOCKERHUB_USERNAME" --password-stdin
+      # crane copy copies the whole multi-arch index, so digests match upstream
+      - name: Mirror images
+        env:
+          VERSIONS: ${{ inputs.versions }}
+        run: ./mirror.sh "$DESTINATION_HUB" $VERSIONS

@@ -1,0 +1,5 @@
+# Istio versions to mirror, one per line.
+# For every version, both <version> and <version>-distroless are mirrored
+# for each image (pilot, proxyv2).
+1.31.0
+1.30.4
