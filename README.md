@@ -4,8 +4,8 @@ Mirrors Istio images from Docker Hub to GHCR, so clusters can pull them without 
 
 | Source | Mirror |
 | --- | --- |
-| `docker.io/istio/pilot:<version>[-distroless]` | `ghcr.io/zufardhiyaulhaq/istio-mirror/pilot:<version>[-distroless]` |
-| `docker.io/istio/proxyv2:<version>[-distroless]` | `ghcr.io/zufardhiyaulhaq/istio-mirror/proxyv2:<version>[-distroless]` |
+| `docker.io/istio/pilot:<version>[-distroless]` | `ghcr.io/gopaytech/istio-mirror/pilot:<version>[-distroless]` |
+| `docker.io/istio/proxyv2:<version>[-distroless]` | `ghcr.io/gopaytech/istio-mirror/proxyv2:<version>[-distroless]` |
 
 All platforms are copied, and the mirrored digests are the same as upstream.
 
@@ -21,7 +21,7 @@ If anonymous pulls from Docker Hub get rate limited, add `DOCKERHUB_USERNAME` an
 
 ```sh
 istioctl install \
-  --set hub=ghcr.io/zufardhiyaulhaq/istio-mirror \
+  --set hub=ghcr.io/gopaytech/istio-mirror \
   --set tag=1.31.0 \
   --set values.global.variant=distroless
 ```
